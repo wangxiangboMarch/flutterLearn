@@ -11,9 +11,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Startup Name Generator',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -24,16 +23,9 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("welcome flutter"),
-        ),
-        body: const Center(
-          child: RandomWords(),
-        ),
-      ),
+      home: const RandomWords()
     );
   }
 }
@@ -46,33 +38,104 @@ class RandomWords extends StatefulWidget {
 }
 
 class _RandomWordsState extends State<RandomWords> {
-
-  final _suggestions =<WordPair>[];
+  final _suggestions = <WordPair>[];
   final _biggerFont = const TextStyle(fontSize: 18);
+  final Set<WordPair> _saved = <WordPair>{}; // 新增本行
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Startup Name Generator'),
+        actions: <Widget>[
+          IconButton(icon: const Icon(Icons.list), onPressed: _pushSaved),
+        ],
+      ),
+      body: _buildSuggestions(),
+    );
+  }
+
+  Widget _buildSuggestions() {
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
       itemBuilder: /*1*/ (context, i) {
-        if (i.isOdd) return const Divider(); /*2*/
+        if (i.isOdd) return const Divider(); /*2*/ // i.isOdd 是否为奇数
 
         final index = i ~/ 2; /*3*/
         if (index >= _suggestions.length) {
           _suggestions.addAll(generateWordPairs().take(10)); /*4*/
         }
-        return ListTile(
-          title: Text(
-            _suggestions[index].asPascalCase,
-            style: _biggerFont,
-          ),
-        );
+        final pair = _suggestions[index];
+        return _buildRow(pair);
       },
+    );
+  }
+
+  Widget _buildRow(WordPair pair) {
+    final bool alreadySaved = _saved.contains(pair); // 新增本行
+
+    return ListTile(
+      title: Text(
+        pair.asPascalCase,
+        style: _biggerFont,
+      ),
+      trailing: Icon(
+        alreadySaved ? Icons.favorite : Icons.favorite_border,
+        color: alreadySaved ? Colors.red : null,
+      ),
+      onTap: () {
+        setState(() {
+          if (alreadySaved) {
+            _saved.remove(pair);
+          } else {
+            _saved.add(pair);
+          }
+        });
+      },
+    );
+  }
+
+  // 推出收藏页面
+  void _pushSaved() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          final Iterable<ListTile> tiles = _saved.map(
+                (WordPair pair) {
+              return ListTile(
+                title: Text(
+                  pair.asPascalCase,
+                  style: _biggerFont,
+                ),
+              );
+            },
+          );
+          final List<Widget> divided = ListTile
+              .divideTiles(
+            context: context,
+            tiles: tiles,
+          )
+              .toList();
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Saved Suggestions'),
+            ),
+            body: ListView(children: divided),
+          );
+        },
+      ),
     );
   }
 }
 
-
+///  1. 对于每个建议的单词对都会调用一次 itemBuilder，然后将单词对添加到 ListTile 行中。
+///     在偶数行，该函数会为单词对添加一个 ListTile row，在奇数行，该函数会添加一个分割线的 widget，
+///     来分隔相邻的词对。注意，在小屏幕上，分割线可能较难辨别。
+///  2. 在 ListView 里的每一行之前，添加一个 1 像素高的分隔线 widget
+///  3. 语法 i ~/ 2 表示 i 除以 2，但返回值是整型（向下取整），比如 i 为：1, 2, 3, 4, 5 时，结果为 0, 1, 1, 2, 2，
+///     这个可以计算出 ListView 中减去分隔线后的实际单词对数量
+///  4. 如果是建议列表中最后一个单词对，接着再生成 10 个单词对，然后添加到建议列表。
+///
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
