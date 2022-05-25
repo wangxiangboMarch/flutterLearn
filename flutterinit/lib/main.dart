@@ -46,6 +46,24 @@ class _RandomWordsState extends State<RandomWords> {
   final _biggerFont = const TextStyle(fontSize: 18);
   final Set<News> _saved = <News>{}; // 新增本行
 
+  bool get showLoadingDialog => _suggestions.isEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    NewsViewModel.getNews((data) {
+      setState((){
+        _suggestions.addAll(data);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when disposing of the Widget.
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,25 +80,24 @@ class _RandomWordsState extends State<RandomWords> {
   Widget _buildSuggestions() {
 
     if (_suggestions.isEmpty) {
-      NewsViewModel.getNews((data) {
-        setState((){
-          _suggestions.addAll(data);
-        });
-      });
-      return Text("数据加载中....");
-    }else{
-      return ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemBuilder: /*1*/ (context, i) {
-          if (i.isOdd) return const Divider(); /*2*/ // i.isOdd 是否为奇数
-
-          final index = i ~/ 2; /*3*/
-
-          final pair = _suggestions[index%3];
-          return _buildRow(pair);
-        },
-      );
+      return getProgressDialog();
     }
+    return ListView.builder(
+      padding: const EdgeInsets.all(16.0),
+      itemCount: _suggestions.length,
+      itemBuilder: /*1*/ (context, i) {
+        if (i.isOdd) return const Divider(); /*2*/ // i.isOdd 是否为奇数
+
+        final index = i ~/ 2; /*3*/
+
+        final pair = _suggestions[index];
+        return _buildRow(pair);
+      },
+    );
+  }
+  // 添加加载动画
+  Widget getProgressDialog() {
+    return const Center(child: CircularProgressIndicator());
   }
 
   Widget _buildRow(News pair) {

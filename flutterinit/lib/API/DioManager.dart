@@ -10,7 +10,7 @@ typedef Error = Function(ErrorRes errorRes); // 请求失败统一回调
 
 /// dio配置类
 class DioManager {
-  static const baseUrl = "https://zhx1.16bus.net"; // 正式环境
+  static const baseUrl = "https://dtnb.16bus.net"; // 正式环境
 
   static DioManager instance = DioManager._internal();
   Dio? _dio;
