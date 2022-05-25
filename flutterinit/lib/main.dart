@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 
+import 'API/DioManager.dart';
+import 'Model/News.dart';
+import 'News/NewsViewModel.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -38,9 +42,9 @@ class RandomWords extends StatefulWidget {
 }
 
 class _RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
+  final _suggestions = <News>[];
   final _biggerFont = const TextStyle(fontSize: 18);
-  final Set<WordPair> _saved = <WordPair>{}; // 新增本行
+  final Set<News> _saved = <News>{}; // 新增本行
 
   @override
   Widget build(BuildContext context) {
@@ -56,27 +60,36 @@ class _RandomWordsState extends State<RandomWords> {
   }
 
   Widget _buildSuggestions() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      itemBuilder: /*1*/ (context, i) {
-        if (i.isOdd) return const Divider(); /*2*/ // i.isOdd 是否为奇数
 
-        final index = i ~/ 2; /*3*/
-        if (index >= _suggestions.length) {
-          _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-        }
-        final pair = _suggestions[index];
-        return _buildRow(pair);
-      },
-    );
+    if (_suggestions.isEmpty) {
+      NewsViewModel.getNews((data) {
+        setState((){
+          _suggestions.addAll(data);
+        });
+      });
+      return Text("数据加载中....");
+    }else{
+      return ListView.builder(
+        padding: const EdgeInsets.all(16.0),
+        itemBuilder: /*1*/ (context, i) {
+          if (i.isOdd) return const Divider(); /*2*/ // i.isOdd 是否为奇数
+
+          final index = i ~/ 2; /*3*/
+
+          final pair = _suggestions[index%3];
+          return _buildRow(pair);
+        },
+      );
+    }
   }
 
-  Widget _buildRow(WordPair pair) {
+  Widget _buildRow(News pair) {
     final bool alreadySaved = _saved.contains(pair); // 新增本行
 
     return ListTile(
+      leading: Image.network(pair.rectangleImage),
       title: Text(
-        pair.asPascalCase,
+        pair.title,
         style: _biggerFont,
       ),
       trailing: Icon(
@@ -101,10 +114,10 @@ class _RandomWordsState extends State<RandomWords> {
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
           final Iterable<ListTile> tiles = _saved.map(
-                (WordPair pair) {
+                (News news) {
               return ListTile(
                 title: Text(
-                  pair.asPascalCase,
+                  news.title,
                   style: _biggerFont,
                 ),
               );
