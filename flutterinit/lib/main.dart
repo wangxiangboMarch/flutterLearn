@@ -16,21 +16,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Startup Name Generator',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.red,
-      ),
-      home: const RandomWords()
-    );
+        title: 'Startup Name Generator',
+        theme: ThemeData(
+          // This is the theme of your application.
+          //
+          // Try running your application with "flutter run". You'll see the
+          // application has a blue toolbar. Then, without quitting the app, try
+          // changing the primarySwatch below to Colors.green and then invoke
+          // "hot reload" (press "r" in the console where you ran "flutter run",
+          // or simply save your changes to "hot reload" in a Flutter IDE).
+          // Notice that the counter didn't reset back to zero; the application
+          // is not restarted.
+          primarySwatch: Colors.red,
+        ),
+        home: const RandomWords());
   }
 }
 
@@ -48,20 +47,28 @@ class _RandomWordsState extends State<RandomWords> {
 
   bool get showLoadingDialog => _suggestions.isEmpty;
 
+  int pageSize = 1;
+  bool canLoadMore = true;
+
   @override
   void initState() {
     super.initState();
-    NewsViewModel.getNews((data) {
-      setState((){
-        _suggestions.addAll(data);
-      });
-    });
+    loadData(1);
   }
 
   @override
   void dispose() {
     // Clean up the controller when disposing of the Widget.
     super.dispose();
+  }
+
+  void loadData(int page) {
+    NewsViewModel.getNews(page, (data) {
+      if (data.isEmpty)  canLoadMore = false;
+      setState(() {
+        _suggestions.addAll(data);
+      });
+    });
   }
 
   @override
@@ -78,23 +85,27 @@ class _RandomWordsState extends State<RandomWords> {
   }
 
   Widget _buildSuggestions() {
-
     if (_suggestions.isEmpty) {
       return getProgressDialog();
     }
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
-      itemCount: _suggestions.length,
+      itemCount: _suggestions.length*2,
       itemBuilder: /*1*/ (context, i) {
         if (i.isOdd) return const Divider(); /*2*/ // i.isOdd 是否为奇数
 
         final index = i ~/ 2; /*3*/
+        if (canLoadMore && index == _suggestions.length - 1) {
+          pageSize = pageSize + 1;
+          loadData(pageSize);
+        }
 
         final pair = _suggestions[index];
         return _buildRow(pair);
       },
     );
   }
+
   // 添加加载动画
   Widget getProgressDialog() {
     return const Center(child: CircularProgressIndicator());
@@ -104,7 +115,17 @@ class _RandomWordsState extends State<RandomWords> {
     final bool alreadySaved = _saved.contains(pair); // 新增本行
 
     return ListTile(
-      leading: Image.network(pair.rectangleImage),
+      leading: Image.network(
+        pair.image,
+        fit: BoxFit.fitWidth,
+        errorBuilder: (context, object, stacktrace) {
+          debugPrint("object : ${object.toString()}");
+          debugPrint( "stacktrace : ${stacktrace.toString()}");
+          return const Text("Error");
+        },
+        height: 50,
+        width: 80,
+      ),
       title: Text(
         pair.title,
         style: _biggerFont,
@@ -131,7 +152,7 @@ class _RandomWordsState extends State<RandomWords> {
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
           final Iterable<ListTile> tiles = _saved.map(
-                (News news) {
+            (News news) {
               return ListTile(
                 title: Text(
                   news.title,
@@ -140,12 +161,10 @@ class _RandomWordsState extends State<RandomWords> {
               );
             },
           );
-          final List<Widget> divided = ListTile
-              .divideTiles(
+          final List<Widget> divided = ListTile.divideTiles(
             context: context,
             tiles: tiles,
-          )
-              .toList();
+          ).toList();
           return Scaffold(
             appBar: AppBar(
               title: const Text('Saved Suggestions'),

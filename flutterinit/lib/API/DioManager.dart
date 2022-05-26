@@ -5,7 +5,8 @@ import '../Model/BaseResponse.dart';
 import '../Model/ErrorRes.dart';
 import 'EntityFactory.dart';
 
-typedef Success<T> = Function(List<T>? data); // 定义一个函数 请求成功回调
+typedef SuccessList<T> = Function(List<T> list); // 定义一个函数 请求成功回调
+typedef Success<T> = Function(T dic); // 定义一个函数 请求成功回调
 typedef Error = Function(ErrorRes errorRes); // 请求失败统一回调
 
 /// dio配置类
@@ -34,10 +35,11 @@ class DioManager {
 
         /// 连接服务器超时时间，单位是毫秒.
         connectTimeout: _connectTimeout,
+
         /// 2.x中为接收数据的最长时限.
         receiveTimeout: _receiveTimeout,
 
-      /// 请求路径，如果 `path` 以 "http(s)"开始, 则 `baseURL` 会被忽略； 否则,
+        /// 请求路径，如果 `path` 以 "http(s)"开始, 则 `baseURL` 会被忽略； 否则,
         /// 将会和baseUrl拼接出完整的的url.
         // String path = "";
 
@@ -54,7 +56,7 @@ class DioManager {
         /// 如果想以二进制方式接受响应数据，如下载一个二进制文件，那么可以使用 `STREAM`.
         ///
         /// 如果想以文本(字符串)格式接收响应数据，请使用 `PLAIN`.
-          responseType: ResponseType.json,
+        responseType: ResponseType.json,
 
         /// `validateStatus` 决定http响应状态码是否被dio视为请求成功， 返回`validateStatus`
         ///  返回`true` , 请求结果就会按成功处理，否则会按失败处理.
@@ -91,43 +93,61 @@ class DioManager {
   /// params：请求参数
   /// success：请求成功回调
   /// error：请求失败回调
-  void request<T>(String path, bool hasLoading ,Map<String, dynamic>? params,
-      Success<T>? success, Error? error) async {
-
+  void request<T>(
+      String path,
+      bool isDic,
+      bool hasLoading,
+      Map<String, dynamic>? params,
+      Success<T>? success,
+      SuccessList<T>? successList,
+      Error? error) async {
     try {
       Response? response = await _dio?.request(
         path,
         data: params,
       );
       if (response?.statusCode == 200) {
-
-        // BaseRes<T> baseResult = BaseRes.fromJson(response?.data, (js) => EntityFactory.generateOBJ(js));
-        BaseRes<List<T>> baseResult = BaseRes<List<T>>.fromJson(response?.data, (js) {
-
-          List<Map<String, dynamic>> listMap = List<Map<String, dynamic>>.from(js);
-
-          return listMap.map((e) {
-            return EntityFactory.generateOBJ<T>(e);
-          }).toList();
-        } );
+        BaseRes? baseResult;
+        if (!isDic) {
+          // var dd = json.decode(response?.data);
+          baseResult = BaseRes<List<dynamic>>.fromJson(response?.data);
+          //ResponseDto的data为List数据结构的时候，使用这个泛型类型:List<dynamic>
+          // List<dynamic>? list = BaseRes<List<dynamic>>.fromJson(json.decode(response?.data)).data;
+        } else {
+          baseResult = BaseRes<dynamic>.fromJson(response?.data);
+          // var data = BaseRes<dynamic>.fromJson(json.decode(response?.data)).data;
+        }
         // 对象数据结构
         if (baseResult.code == "0" && baseResult.data != null) {
-          if (success != null) success(baseResult.data);
+          if (isDic) {
+            if (success != null) {
+              var data = EntityFactory.generateOBJ(baseResult.data);
+              success(data);
+            }
+          } else {
+            if (successList != null) {
+              List<dynamic> jsonData = baseResult.data;
+              //解析成需要的类型
+              var types = jsonData
+                  .map((typeJson) => EntityFactory.generateOBJ<T>(typeJson))
+                  .toList();
+              successList(types);
+            }
+          }
         } else {
           if (error != null) {
             error(ErrorRes(baseResult.code as int, DioErrorType.other));
           }
         }
-      }else{
+      } else {
         if (error != null) {
           error(ErrorRes(-1000, DioErrorType.other));
         }
       }
-    } catch(e) {
+    } catch (e) {
       if (error != null) {
         error(ErrorRes(-1000, DioErrorType.other));
       }
     }
   }
 }
-
