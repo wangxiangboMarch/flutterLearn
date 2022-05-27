@@ -116,12 +116,12 @@ class _RandomWordsState extends State<RandomWords> {
 
     return ListTile(
       leading: Image.network(
-        pair.image,
+        pair.image.contains("http") ? pair.image : (DioManager.baseUrl + pair.image),
         fit: BoxFit.fitWidth,
         errorBuilder: (context, object, stacktrace) {
           debugPrint("object : ${object.toString()}");
           debugPrint( "stacktrace : ${stacktrace.toString()}");
-          return const Text("Error");
+          return Image.network("http://cli.oss.aliyuncs.com/2015/04/22/21f5deae6515c6c8a8834c5a65506971.jpg");
         },
         height: 50,
         width: 80,
