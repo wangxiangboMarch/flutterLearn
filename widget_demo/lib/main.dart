@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:widget_demo/page/MyWidget.dart';
 import 'package:widget_demo/root_page.dart';
 
 void main() {

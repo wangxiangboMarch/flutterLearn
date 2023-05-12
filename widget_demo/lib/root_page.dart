@@ -19,26 +19,24 @@ class _RootPageState extends State<RootPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Scaffold(
-        body: _pages[_currentIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          // 不设置这个 只能三个 ...
-          type: BottomNavigationBarType.fixed,
-          fixedColor: Colors.green,
-          currentIndex: _currentIndex,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.chat), label: "微信"),
-            BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: "通讯录"),
-            BottomNavigationBarItem(icon: Icon(Icons.history), label: "发现"),
-            BottomNavigationBarItem(icon: Icon(Icons.person_2_outlined), label: "我的"),
-          ],
-        ),
+    return Scaffold(
+      body: _pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        // 不设置这个 只能三个 ...
+        type: BottomNavigationBarType.fixed,
+        fixedColor: Colors.green,
+        currentIndex: _currentIndex,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "微信"),
+          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: "通讯录"),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: "发现"),
+          BottomNavigationBarItem(icon: Icon(Icons.person_2_outlined), label: "我的"),
+        ],
       ),
     );
   }

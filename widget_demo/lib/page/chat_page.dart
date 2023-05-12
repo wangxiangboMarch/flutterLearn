@@ -12,9 +12,9 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("微信页面"),
+        title: const Text("微信页面"),
       ),
-      body: Center(
+      body: const Center(
         child: Text("weixin"),
       ),
     );

@@ -12,9 +12,9 @@ class _FriendsPageState extends State<FriendsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("_FriendsPageState"),
+        title: const Text("_FriendsPageState"),
       ),
-      body: Center(
+      body: const Center(
         child: Text("_FriendsPageState"),
       ),
     );

@@ -8,6 +8,7 @@ class MyWidget extends StatelessWidget {
 
   Widget _loadList(BuildContext context, int index) {
     return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.network(
             datas[index].imageUrl,
@@ -16,7 +17,6 @@ class MyWidget extends StatelessWidget {
           ),
           Text(datas[index].name),
         ],
-        crossAxisAlignment: CrossAxisAlignment.start,
     );
   }
 

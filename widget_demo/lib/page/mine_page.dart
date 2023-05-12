@@ -12,9 +12,9 @@ class _MinePagePageState extends State<MinePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("_MinePagePageState"),
+        title: const Text("_MinePagePageState"),
       ),
-      body: Center(
+      body: const Center(
         child: Text("_MinePagePageState"),
       ),
     );
