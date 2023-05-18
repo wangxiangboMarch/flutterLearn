@@ -13,7 +13,7 @@ class RootPage extends StatefulWidget {
 
 class _RootPageState extends State<RootPage> {
 
-  int _currentIndex = 0;
+  int _currentIndex = 3;
 
   final List<Widget> _pages = [const ChatPage(), const FriendsPage(), const DiscoverPage(), const MinePage()];
 

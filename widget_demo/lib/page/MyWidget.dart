@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
 import '../model/car.dart';
 
 class MyWidget extends StatelessWidget {

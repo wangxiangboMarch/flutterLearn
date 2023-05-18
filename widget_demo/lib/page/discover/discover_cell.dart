@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../MyWidget.dart';
 
 class DiscoverCell extends StatelessWidget {
@@ -24,9 +23,15 @@ class DiscoverCell extends StatelessWidget {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(builder:
-          (BuildContext context) => MyWidget()
+          (BuildContext context) => const MyWidget()
           )
         );
+      },
+      onDoubleTapDown: (TapDownDetails detaile) {
+        // 点下去
+      },
+      onTapCancel: () {
+        // 取消了
       },
       child: Container(
         color: Colors.white,
@@ -43,7 +48,7 @@ class DiscoverCell extends StatelessWidget {
               ),
             ),
             Container(
-              child: Text("data"),
+              child: const Text("data"),
             )
           ],
         ),
