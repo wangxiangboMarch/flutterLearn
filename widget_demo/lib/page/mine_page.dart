@@ -24,44 +24,42 @@ class _MinePagePageState extends State<MinePage> {
       body: Stack(
         children: [
           // 列表
-          Container(
-            child: MediaQuery.removePadding(
-              removeTop: true,
-                context: context,
-                child: ListView(
-                  children: [
+          MediaQuery.removePadding(
+            removeTop: true,
+              context: context,
+              child: ListView(
+                children: [
 
-                    headerWidget(),
+                  headerWidget(),
 
-                    const DiscoverCell(title: "title", subTitle: "subTitle"),
-                    // 分割线
-                    Row(
-                      children: <Widget>[
-                        Container(
-                          width: 50,
-                          height: 0.5,
-                          color: Colors.white,
-                        ),
-                        Container(
-                          height: 0.5,
-                          color: Colors.grey,
-                        )
-                      ],
-                    ),
-                    const DiscoverCell(title: "title", subTitle: "subTitle"),
-                    // 间距
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const DiscoverCell(title: "title", subTitle: "subTitle"),
-                  ],
-                ),
-            ),
+                  const DiscoverCell(title: "title", subTitle: "subTitle"),
+                  // 分割线
+                  Row(
+                    children: <Widget>[
+                      Container(
+                        width: 50,
+                        height: 0.5,
+                        color: Colors.white,
+                      ),
+                      Container(
+                        height: 0.5,
+                        color: Colors.grey,
+                      )
+                    ],
+                  ),
+                  const DiscoverCell(title: "title", subTitle: "subTitle"),
+                  // 间距
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const DiscoverCell(title: "title", subTitle: "subTitle"),
+                ],
+              ),
           ),
           // 相机
           Container(
-            margin: EdgeInsets.only(top: 40, right: 16),
-            child: Row(
+            margin: const EdgeInsets.only(top: 40, right: 16),
+            child: const Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Icon(Icons.accessibility_new)
